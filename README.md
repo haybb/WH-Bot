@@ -41,4 +41,4 @@ Then update Strategy.py lines 38 to 85 with your own study.
 To modify pairs, modify Strategy.py line 10 with your choosen pair.
 To modify timeframe (ccxt only), modify Dataframe.py line 12 with your choosen period.
 
-
+Enjoy!
