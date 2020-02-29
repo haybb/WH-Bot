@@ -1,10 +1,11 @@
 # WH-Bot
 A python cryptocurrencies trading bot.
 
-This program aim to trade in the crypto markets 24h/7 and can be used as a support for several strategies, timeframes, pairs 
+
+This program aim to trade in the crypto markets 24h/7 and can be used as a support for several strategies, timeframes, pairs. 
 Education purpose only, use it under your own risks.
 
-To run this script, you'll need few packages : pandas, numpy, mplfinance, schedule, yfinance, ccxt, datetime, time, warnings
+To run this script, you'll need few packages : pandas, numpy, mplfinance, schedule, yfinance, ccxt, datetime, time, warnings.
 To download them, open your command prompt and type : pip install package_name (i.e. pip install pandas)
 
 For the purpose of the script, we use a simple moving average (SMA) strategy: 
