@@ -52,10 +52,10 @@ def projectionLong():
     # few stats
     stat = pd.Series()
     stat['Net profit'] = round(sum(profit), 2)
-    stat['% profit'] = round((stat['Net profit'] / df['Open'].mean()) * 100, 2)
+    stat['Total % profit'] = round((stat['Net profit'] / df['Open'].mean()) * 100, 2)
     stat['Win trade'] = projBuy[projBuy['Profit'] > 0]['Profit'].count()
     stat['Lose trade'] = projBuy[projBuy['Profit'] < 0]['Profit'].count()
-    stat['Com. paid'] = fees
+    stat['Com. paid'] = round(fees, 2)
 
     print('BUY'
           '\n', stat.to_string(), '\n',
@@ -112,10 +112,10 @@ def projectionShort():
 
     stats = pd.Series()
     stats['Net profit'] = round(sum(profits), 2)
-    stats['% profit'] = round((stats['Net profit'] / df['Open'].mean()) * 100, 2)
+    stats['Total % profit'] = round((stats['Net profit'] / df['Open'].mean()) * 100, 2)
     stats['Win trade'] = projSell[projSell['Profit'] > 0]['Profit'].count()
     stats['Lose trade'] = projSell[projSell['Profit'] < 0]['Profit'].count()
-    stats['Com. paid'] = fee
+    stats['Com. paid'] = round(fee, 2)
 
     print('\nSELL'
           '\n', stats.to_string(), '\n',
@@ -126,7 +126,8 @@ def projectionShort():
 
 
 def backtest(df):
-    print('\nBacktest with 1 BTC (', df['Close'][-1], '$ )\n')
+    print('\nBacktest with 1 BTC (', round(df['Close'][0], 2), '$ on', df.index[0],
+          '; first closing value of backtest period)\n')
     l = projectionLong()
     s = projectionShort()
 
@@ -136,14 +137,12 @@ def backtest(df):
     total = round(l + s, 2)
     first_date = df.index[0]
     nb_days = (datetime.today() - first_date).days
-    to_month = 30 / nb_days
-    total_gain_month = total * to_month
-    gain_month = total_gain_month / df['Close'][0]
-
-    gain = round(gain_month * 100, 2)
     profit_day = round(total / nb_days, 2)
+    profit_month = round((profit_day * 30.42) / df['Open'].mean() * 100, 2)
+    # 30.42 = 365/12
+
     print('\nProfit/day:', profit_day, '$'
-          '\nProfit/month:', gain, '%')
+          '\nProfit/month:', profit_month, '%')
 
 
 
