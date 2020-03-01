@@ -29,7 +29,7 @@ To get input trading data, there are two ways:
 When all above downloaded, execute Strategy.py 
 Script will execute backtest including chart and will show strategy result:
 - Net backtest period profit $
-- % profit backtest period
+- Total % profit backtest period
 - Number of winning and losing trades
 - Commission paid
 - Daily profit $
