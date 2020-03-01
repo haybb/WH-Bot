@@ -131,7 +131,7 @@ def backtest(df):
     l = projectionLong()
     s = projectionShort()
 
-    # calculation of numbers of days + profit realised / day
+    # calculation of numbers of days + profit realized / day
     # then total profit
 
     total = round(l + s, 2)
