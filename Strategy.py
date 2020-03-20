@@ -1,111 +1,82 @@
-import mplfinance as mpf
 import numpy as np
-import Backtest
+import pandas as pd
 import Indicators
 import yfinance as yf
 
 
-# get our data
-# one day timeframe
-df = yf.download('BTC-USD', start='2019-01-01', end='2020-02-28')
+df = pd.DataFrame()
 
-# if you want use the ccxt dataframe :
-# import Dataframe
-# df = Dataframe.df
+def data(symbol, timeframe, sma_len):
+    global df, long, tpLong, short, tpShort
 
-df['SMA'] = Indicators.SMA(df['Close'], 30)
-# add your indicators here
+    # get our data
+    # valid downloadable periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+    df = yf.download(symbol, period='1y', interval=timeframe)
 
-# strategy in backtest
-long = []
-short = []
-tpLong = []
-tpShort = []
+    df['SMA'] = Indicators.SMA(df['Close'], int(sma_len))
+    # should you wish to use another strategy
+    # add your indicators here
 
-isLong = False
-isShort = False
-isTPLong = False
-isTPShort = False
+    buy = []
+    sell = []
+    tpbuy = []
+    tpsell = []
 
-# hereunder an example of strategy using simple moving average in the last 30 periods (SMA30)
-# you may change with your own strategy
-# buy orders when current SMA30 is above last SMA30
-# sell orders when current SMA30 is below last SMA30
-# creation of a list for backtesting and chart purpose for every buy, sell, take profit buy, take profit sell orders
-# including time and price value at candle close 
-# otherwise appends NaN values
+    for i in range(0, len(df['Close'])):
+        buy.append(np.nan)
+        tpbuy.append(np.nan)
+        sell.append(np.nan)
+        tpsell.append(np.nan)
 
-for i in range(1, len(df['Close'])):
-
-    sma = df['SMA'][i]
-    sma1 = df['SMA'][i-1]
-
-    if not isLong and sma > sma1:
-        longPrice = df['Close'][i]
-        long.append([df.index[i], df['Close'][i]])
-        isLong = True
-        isTPLong = False
-        isSLLong = False
-        tpLong.append([np.nan, np.nan])
-        short.append([np.nan, np.nan])
-        tpShort.append([np.nan, np.nan])
-
-    elif isLong and not isTPLong and sma < sma1:
-        tpLong.append([df.index[i], df['Close'][i]])
-        isLong = False
-        isTPLong = True
-        isSLLong = False
-        long.append([np.nan, np.nan])
-        short.append([np.nan, np.nan])
-        tpShort.append([np.nan, np.nan])
-
-    elif not isShort and sma < sma1:
-        shortPrice = df['Open'][i]
-        short.append([df.index[i], df['Close'][i]])
-        isShort = True
-        isTPShort = False
-        isSLShort = False
-        long.append([np.nan, np.nan])
-        tpLong.append([np.nan, np.nan])
-        tpShort.append([np.nan, np.nan])
-
-    elif isShort and not isTPShort and sma > sma1:
-        tpShort.append([df.index[i], df['Close'][i]])
-        isShort = False
-        isTPShort = True
-        isSLShort = False
-        long.append([np.nan, np.nan])
-        tpLong.append([np.nan, np.nan])
-        short.append([np.nan, np.nan])
-
-    else:
-        long.append([np.nan, np.nan])
-        tpLong.append([np.nan, np.nan])
-        short.append([np.nan, np.nan])
-        tpShort.append([np.nan, np.nan])
+    df['Long'] = buy
+    df['Short'] = sell
+    df['TP Long'] = tpbuy
+    df['TP Short'] = tpsell
 
 
-if __name__ == '__main__':
-    # call our backtest
-    Backtest.backtest(df)
+    # strategy in backtest
+    long = []
+    short = []
+    tpLong = []
+    tpShort = []
 
-    # plot chart using close prices list for each order
-    # append to last row NaN value
-    buy = [long[i][1] for i in range(0, len(long))]
-    sell = [short[i][1] for i in range(0, len(short))]
-    tpbuy = [tpLong[i][1] for i in range(0, len(tpLong))]
-    tpsell = [tpShort[i][1] for i in range(0, len(tpShort))]
+    isLong = False
+    isShort = False
+    isTPLong = False
+    isTPShort = False
 
-    buy.append(np.nan)
-    sell.append(np.nan)
-    tpbuy.append(np.nan)
-    tpsell.append(np.nan)
+    '''hereunder an example of strategy using simple moving average in the last X periods (SMA)
+    you may change with your own strategy
+    buy orders when current SMA is above last SMA
+    sell orders when current SMA is below last SMA
+    creation of a list for backtesting and chart purpose for every buy, sell, take profit buy, take profit sell orders
+    including time and price value at candle close'''
 
-    # merging all components for plotting
-    signals = [mpf.make_addplot(buy, scatter=True, markersize=200, marker='^', color='green'),
-            mpf.make_addplot(sell, scatter=True, markersize=200, marker='v', color='red'),
-            mpf.make_addplot(tpbuy, scatter=True, markersize=90, marker='s', color='green'),
-            mpf.make_addplot(tpsell, scatter=True, markersize=90, marker='s', color='red')]
-    # if you have other indicators, add them here in order to plot them
-    # here we only have the sma, already included in command plot
-    mpf.plot(df, type='candle', mav=30, addplot=signals, figscale=1.6)
+    for i in range(1, len(df['Close'])):
+
+        sma = df['SMA'][i]
+        sma1 = df['SMA'][i-1]
+
+        if not isLong and sma > sma1:
+            long.append([df.index[i], df['Close'][i]])
+            df['Long'][i] = df['Close'][i]
+            isLong = True
+            isTPLong = False
+
+        elif isLong and not isTPLong and sma < sma1:
+            tpLong.append([df.index[i], df['Close'][i]])
+            df['TP Long'][i] = df['Close'][i]
+            isLong = False
+            isTPLong = True
+
+        elif not isShort and sma < sma1:
+            short.append([df.index[i], df['Close'][i]])
+            df['Short'][i] = df['Close'][i]
+            isShort = True
+            isTPShort = False
+
+        elif isShort and not isTPShort and sma > sma1:
+            tpShort.append([df.index[i], df['Close'][i]])
+            df['TP Short'][i] = df['Close'][i]
+            isShort = False
+            isTPShort = True

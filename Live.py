@@ -25,15 +25,16 @@ lastProfit = 0
 
 
 def main():
+    # default parameters, change with yours
     exchange = ccxt.binance({
         'apiKey': 'paste your api key here',
         'secret': 'paste your secret key here'})
-
     symbol = 'BTC/USDT'
     timeframe = '4h'
     ohlcv = exchange.fetch_ohlcv(symbol, timeframe)
-    amount = 0.1 # BTC
+    amount = 0.1 # BTC here
 
+    # convert timestamp to readable format
     dates = []
     open_data = []
     high_data = []
@@ -59,6 +60,7 @@ def main():
         return [np.mean(data[idx - (period - 1):idx + 1]) for idx in range(0, len(data))]
 
     df['SMA'] = SMA(df['Close'], 30)
+    # call your other indicators here, with Indicators.py or by writing them here
 
     # backtest
     ticker = exchange.fetchTicker(symbol)
@@ -76,36 +78,34 @@ def main():
         long.append([timedate, last])
         isLong = True
         isTPLong = False
-        marketBuy = exchange.create_market_buy_order(symbol, amount, {'test': True})
         print(timedate, 'LONG at', pricebuy[-1])
+        print('\n', exchange.create_market_buy_order(symbol, amount, {'test': True}), '\n')
 
-    elif isLong and not isTPLong and sma < sma1:
-        tpLong.append([timedate, last])
-        isLong = False
-        isTPLong = True
-        marketSell = exchange.create_market_sell_order(symbol, amount, {'test': True})
-        profitBuy.append(last - long[-1][1])
-        print(timedate, 'TP LONG at', last, 'profit made:', profitBuy[-1],'\n')
-        time.sleep(5)
+        if isShort and not isTPShort:
+            tpShort.append([timedate, last])
+            isShort = False
+            isTPShort = True
+            profitSell.append(-last + short[-1][1])
+            print(timedate, 'TP SHORT at', last, 'profit made:', profitSell[-1], '\n')
+            print('\n', exchange.create_market_buy_order(symbol, amount, {'test': True}), '\n')
 
     elif not isShort and sma < sma1:
         short.append([timedate, last])
         pricesell.append(last)
         isShort = True
         isTPShort = False
-        marketSell = exchange.create_market_sell_order(symbol, amount, {'test': True})
         print(timedate, 'SHORT at', pricesell[-1])
+        print('\n', exchange.create_market_sell_order(symbol, amount, {'test': True}), '\n')
 
-    elif isShort and not isTPShort and sma > sma1:
-        tpShort.append([timedate, last])
-        isShort = False
-        isTPShort = True
-        marketBuy = exchange.create_market_buy_order(symbol, amount, {'test': True})
-        profitSell.append(-last + short[-1][1])
-        print(timedate, 'TP SHORT at', last, 'profit made:', profitSell[-1], '\n')
-        time.sleep(5)
+        if isLong and not isTPLong and sma < sma1:
+            tpLong.append([timedate, last])
+            isLong = False
+            isTPLong = True
+            profitBuy.append(last - long[-1][1])
+            print(timedate, 'TP LONG at', last, 'profit made:', profitBuy[-1], '\n')
+            print('\n', exchange.create_market_buy_order(symbol, amount, {'test': True}), '\n')
 
-
+    # calculation of profit
     totalProfit = round(sum(profitBuy) + sum(profitSell), 2)
     if lastProfit != totalProfit:
         lastProfit = totalProfit

@@ -2,6 +2,12 @@ import pandas as pd
 from datetime import datetime
 
 
+projBuy = pd.DataFrame()
+projSell = pd.DataFrame()
+stat_buy = pd.Series()
+stat_sell = pd.Series()
+
+
 def projectionLong():
     import Strategy
     df = Strategy.df
@@ -50,19 +56,14 @@ def projectionLong():
     projBuy['Cum. Profit'] = projBuy['Profit'].cumsum()
 
     # few stats
-    stat = pd.Series()
-    stat['Net profit'] = round(sum(profit), 2)
-    stat['Total % profit'] = round((stat['Net profit'] / df['Open'].mean()) * 100, 2)
-    stat['Win trade'] = projBuy[projBuy['Profit'] > 0]['Profit'].count()
-    stat['Lose trade'] = projBuy[projBuy['Profit'] < 0]['Profit'].count()
-    stat['Com. paid'] = round(fees, 2)
+    global stat_buy
+    stat_buy['Net profit'] = round(sum(profit), 2)
+    stat_buy['Total % profit'] = round((stat_buy['Net profit'] / df['Open'].mean()) * 100, 2)
+    stat_buy['Win trade'] = projBuy[projBuy['Profit'] > 0]['Profit'].count()
+    stat_buy['Lose trade'] = projBuy[projBuy['Profit'] < 0]['Profit'].count()
+    stat_buy['Com. paid'] = round(fees, 2)
 
-    print('BUY'
-          '\n', stat.to_string(), '\n',
-          '\n', projBuy.to_string()
-          )
-
-    return stat['Net profit']
+    return stat_buy['Net profit']
 
 
 def projectionShort():
@@ -110,24 +111,17 @@ def projectionShort():
     projSell['Profit'] = profits
     projSell['Cum. Profit'] = projSell['Profit'].cumsum()
 
-    stats = pd.Series()
-    stats['Net profit'] = round(sum(profits), 2)
-    stats['Total % profit'] = round((stats['Net profit'] / df['Open'].mean()) * 100, 2)
-    stats['Win trade'] = projSell[projSell['Profit'] > 0]['Profit'].count()
-    stats['Lose trade'] = projSell[projSell['Profit'] < 0]['Profit'].count()
-    stats['Com. paid'] = round(fee, 2)
+    global stat_sell
+    stat_sell['Net profit'] = round(sum(profits), 2)
+    stat_sell['Total % profit'] = round((stat_sell['Net profit'] / df['Open'].mean()) * 100, 2)
+    stat_sell['Win trade'] = projSell[projSell['Profit'] > 0]['Profit'].count()
+    stat_sell['Lose trade'] = projSell[projSell['Profit'] < 0]['Profit'].count()
+    stat_sell['Com. paid'] = round(fee, 2)
 
-    print('\nSELL'
-          '\n', stats.to_string(), '\n',
-          '\n', projSell.to_string()
-          )
-
-    return stats['Net profit']
+    return stat_sell['Net profit']
 
 
-def backtest(df):
-    print('\nBacktest with 1 BTC (', round(df['Close'][0], 2), '$ on', df.index[0],
-          '; first closing value of backtest period)\n')
+def results(df):
     l = projectionLong()
     s = projectionShort()
 
@@ -141,8 +135,7 @@ def backtest(df):
     profit_month = round((profit_day * 30.42) / df['Open'].mean() * 100, 2)
     # 30.42 = 365/12
 
-    print('\nProfit/day:', profit_day, '$'
-          '\nProfit/month:', profit_month, '%')
+    return profit_day, profit_month
 
 
 
