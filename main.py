@@ -107,7 +107,7 @@ def updateSettings():
     ax.autoscale_view()
     plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
     ax.set_xlabel('Time')
-    ax.set_ylabel('Price ($)')
+    ax.set_ylabel('Price')
 
     plt.title(str(def_symbol.get()) + ' ' + str(def_tf.get()))
     ax.legend()
@@ -137,7 +137,7 @@ def_tf = Entry(settings_frame, font=('Arial', 14), width=10)
 def_tf.grid(padx=15, column=4, row=1)
 def_tf.insert(0, '1d')
 
-Label(settings_frame, text='SMA length', font=('Arial', 14)).grid(padx=15, column=5, row=1)
+Label(settings_frame, text='SMA period', font=('Arial', 14)).grid(padx=15, column=5, row=1)
 Label(settings_frame, text='Available length of Simple Moving Average: from 0 to 240',
       font=('Arial', 10)).grid(padx=15, column=1, row=4, columnspan=6)
 def_sma_size = Entry(settings_frame, font=('Arial', 14), width=10)
