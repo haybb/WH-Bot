@@ -14,7 +14,8 @@ or do it manually by typing : ```pip install package_name``` (e.g. ```pip instal
 ### Execution
 Just have to launch `WH-Bot.exe`.
 Or you can also execute `Main.py`.
-![User Interface](/Images/Screen.png?raw=true)
+
+![Screen](https://user-images.githubusercontent.com/61158178/77209752-61e7b000-6aff-11ea-8c2d-a08c372144b3.PNG)
 
 ### Strategy
 For the purpose of the script, we use a Simple Moving Average (SMA) strategy: 
