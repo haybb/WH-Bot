@@ -1,13 +1,9 @@
 import numpy as np
-import pandas as pd
 import Indicators
 import yfinance as yf
 
 
-df = pd.DataFrame()
-
 def data(symbol, timeframe, sma_len):
-    global df, long, tpLong, short, tpShort
 
     # get our data
     # valid downloadable periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
@@ -80,3 +76,5 @@ def data(symbol, timeframe, sma_len):
             df['TP Short'][i] = df['Close'][i]
             isShort = False
             isTPShort = True
+
+    return df, long, short, tpLong, tpShort

@@ -48,28 +48,27 @@ def updateSettings():
     chart_frame.destroy()
 
     # frame results
-    Strategy.data(def_symbol.get(), def_tf.get(), def_sma_size.get())
-    profit_day, profit_month = Backtest.results(Strategy.df)
+    df, long, short, tpLong, tpShort = Strategy.data(def_symbol.get(), def_tf.get(), def_sma_size.get())
+    profit_day, profit_month = Backtest.results(df, long, short, tpLong, tpShort)
+    stat_buy, projBuy = Backtest.projectionLong(df, long, tpLong)
+    stat_sell, projSell = Backtest.projectionShort(df, short, tpShort)
 
     tit = Label(results_frame, text='Backtest results\n(with 1 unit)', font='Arial 16 underline')
     tit.grid(pady=15)
 
-    profit = Label(results_frame, text='Profit/day: ' + str(profit_day) + '$\nProfit/month: '
-                                       + str(profit_month) + '%', font=('Arial', 14))
+    profit = Label(results_frame, text=f'Profit/day: {profit_day}$\nProfit/month: {profit_month}%', font=('Arial', 14))
     profit.grid(pady=20)
 
-    stb = Label(results_frame, text='LONG statistics:\n' + str(Backtest.stat_buy.to_string()), font=('Arial', 14))
+    stb = Label(results_frame, text=f'LONG statistics:\n{stat_buy.to_string()}', font=('Arial', 14))
     stb.grid(pady=20)
 
-    sts = Label(results_frame, text='SHORT statistics:\n' + str(Backtest.stat_sell.to_string()), font=('Arial', 14))
+    sts = Label(results_frame, text=f'SHORT statistics:\n{stat_sell.to_string()}', font=('Arial', 14))
     sts.grid(pady=20)
 
-    projBuy = Backtest.projBuy
-    projSell = Backtest.projSell
     if projBuy['Type'].iloc[-1] == 'buy':
-       txt_last = 'Pending order:\nLONG at ' + str(round(projBuy['Values'].iloc[-1], 2)) + '$'
+       txt_last = f'Pending order:\nLONG at {round(projBuy["Values"].iloc[-1], 2)}$'
     elif projSell['Type'].iloc[-1] == 'sell':
-        txt_last = 'Pending order:\nSHORT at ' + str(round(projSell['Values'].iloc[-1], 2)) + '$'
+        txt_last = f'Pending order:\nSHORT at {round(projSell["Values"].iloc[-1], 2)}$'
     pend = Label(results_frame, text=txt_last, font=('Arial', 14))
     pend.grid(pady=20)
 
@@ -79,7 +78,6 @@ def updateSettings():
     chart_frame.pack(fill=BOTH, expand=1)
 
     # first reset the date
-    df = Strategy.df
     df_reset = df.loc[:].reset_index()
     df_reset['date_ax'] = df_reset['Date'].apply(lambda date: date2num(date))
     df_values = [tuple(vals) for vals in df_reset[['date_ax', 'Open', 'High', 'Low', 'Close']].values]
@@ -109,7 +107,7 @@ def updateSettings():
     ax.set_xlabel('Time')
     ax.set_ylabel('Price')
 
-    plt.title(str(def_symbol.get()) + ' ' + str(def_tf.get()))
+    plt.title(f'{def_symbol.get()} {def_tf.get()}')
     ax.legend()
 
     # embed in Tkinter
