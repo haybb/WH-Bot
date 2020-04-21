@@ -103,7 +103,7 @@ def main():
             isTPLong = True
             profitBuy.append(last - long[-1][1])
             print(timedate, 'TP LONG at', last, 'profit made:', profitBuy[-1], '\n')
-            print('\n', exchange.create_market_buy_order(symbol, amount, {'test': True}), '\n')
+            print('\n', exchange.create_market_sell_order(symbol, amount, {'test': True}), '\n')
 
     # calculation of profit
     totalProfit = round(sum(profitBuy) + sum(profitSell), 2)
@@ -113,10 +113,8 @@ def main():
 
 
 if __name__ == '__main__':
-
-    print('\nStart at', datetime.now(), '\n')
+    print('Start at', datetime.now(), '\n')
     schedule.every(4).hours.at(":01").do(main)
-    
     while True:
         schedule.run_pending()
         time.sleep(1)
