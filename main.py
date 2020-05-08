@@ -1,8 +1,7 @@
 from tkinter import *
 import matplotlib.pyplot as plt
-from matplotlib.dates import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from mplfinance.original_flavor import candlestick_ohlc
+import mplfinance as mpf
 import Strategy
 import Backtest
 
@@ -77,38 +76,13 @@ def updateSettings():
     chart_frame = Frame(root)
     chart_frame.pack(fill=BOTH, expand=1)
 
-    # first reset the date
-    df_reset = df.loc[:].reset_index()
-    df_reset['date_ax'] = df_reset['Date'].apply(lambda date: date2num(date))
-    df_values = [tuple(vals) for vals in df_reset[['date_ax', 'Open', 'High', 'Low', 'Close']].values]
+    apds = [mpf.make_addplot(df['SMA']),
+            mpf.make_addplot(df['Long'], scatter=True, marker='^', color='tab:green', markersize=80),
+            mpf.make_addplot(df['TP Long'], scatter=True, marker='o', color='tab:green', markersize=80),
+            mpf.make_addplot(df['Short'], scatter=True, marker='v', color='tab:red', markersize=80),
+            mpf.make_addplot(df['TP Short'], scatter=True, marker='o', color='tab:red', markersize=80)]
 
-    # set time on axis
-    months = MonthLocator()
-    days = DayLocator()
-    weekFormatter = DateFormatter('%b %d')
-
-    # then plot
-    fig, ax = plt.subplots()
-    fig.subplots_adjust(bottom=0.2)
-    ax.xaxis.set_major_locator(months)
-    ax.xaxis.set_minor_locator(days)
-    ax.xaxis.set_major_formatter(weekFormatter)
-
-    ax.plot(df['Long'], marker='^', color='b', markersize=7, label='Buy')
-    ax.plot(df['TP Long'], marker='o', color='b', markersize=7, label='Close Buy')
-    ax.plot(df['Short'], marker='v', color='y', markersize=7, label='Sell')
-    ax.plot(df['TP Short'], marker='o', color='y', markersize=7, label='Close Sell')
-    ax.plot(df['SMA'], color='k')
-
-    candlestick_ohlc(ax, df_values, width=0.6, colorup='g', colordown='r')
-    ax.xaxis_date()
-    ax.autoscale_view()
-    plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Price')
-
-    plt.title(f'{def_symbol.get()} {def_tf.get()}')
-    ax.legend()
+    fig, axlist = mpf.plot(df, type='candle', returnfig=True, addplot=apds)
 
     # embed in Tkinter
     canvas = FigureCanvasTkAgg(fig, chart_frame)
@@ -140,7 +114,7 @@ Label(settings_frame, text='Available length of Simple Moving Average: from 0 to
       font=('Arial', 10)).grid(padx=15, column=1, row=4, columnspan=6)
 def_sma_size = Entry(settings_frame, font=('Arial', 14), width=10)
 def_sma_size.grid(padx=15, column=6, row=1)
-def_sma_size.insert(0, '50')
+def_sma_size.insert(0, '30')
 
 
 # close user interface
